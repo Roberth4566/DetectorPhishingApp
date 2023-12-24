@@ -2,12 +2,9 @@ package proyecto.detectorphishingapp;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import javax.swing.JButton;
@@ -20,38 +17,45 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 /**
+ * Aplicación de detección de phishing.
+ * Esta aplicación permite seleccionar un archivo de texto (.txt), analizar
+ * las ocurrencias de palabras clave de phishing y mostrar los resultados.
  *
  * @author CRIZ
  */
-
 public class DetectorPhishingApp {
 
     private JTextArea outputTextArea;
 
     public static void main(String[] args) {
+        // Iniciar la aplicación en el hilo de eventos de la interfaz gráfica.
         SwingUtilities.invokeLater(() -> {
             DetectorPhishingApp app = new DetectorPhishingApp();
             app.createAndShowGUI();
         });
     }
 
+    /**
+     * Crea y muestra la interfaz gráfica de la aplicación su título será Phising Detector.
+     */
     private void createAndShowGUI() {
         JFrame frame = new JFrame("Phishing Detector");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
+        // Área de texto para mostrar los resultados.
         outputTextArea = new JTextArea(20, 50);
         outputTextArea.setEditable(false);
 
         JScrollPane scrollPane = new JScrollPane(outputTextArea);
         frame.add(scrollPane, BorderLayout.CENTER);
 
+        // Botón para seleccionar un archivo.
         JButton openFileButton = new JButton("Seleccionar Archivo");
         openFileButton.addActionListener(e -> processFile());
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(openFileButton);
-
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setSize(600, 400);
@@ -59,6 +63,9 @@ public class DetectorPhishingApp {
         frame.setVisible(true);
     }
 
+    /**
+     * Procesa el archivo seleccionado, analizando las ocurrencias de palabras clave de phishing.
+     */
     private void processFile() {
         File selectedFile = selectTextFile();
         if (selectedFile == null) {
@@ -66,12 +73,16 @@ public class DetectorPhishingApp {
             return;
         }
 
-        outputTextArea.setText(""); // Limpiar el área de texto antes de procesar un nuevo archivo
+        // Limpiar el área de texto antes de procesar un nuevo archivo.
+        outputTextArea.setText("");
 
         try (FileReader fileReader = new FileReader(selectedFile);
              Scanner scanner = new Scanner(fileReader)) {
 
+            // Contar las ocurrencias de palabras clave de phishing.
             Map<String, Integer> keywordOccurrences = countPhishingKeywords(scanner);
+
+            // Mostrar los resultados en el área de texto.
             printKeywordOccurrences(keywordOccurrences);
 
         } catch (IOException e) {
@@ -79,6 +90,11 @@ public class DetectorPhishingApp {
         }
     }
 
+    /**
+     * Permite al usuario seleccionar un archivo de texto.
+     *
+     * @return El archivo seleccionado o null si la selección fue cancelada.
+     */
     private File selectTextFile() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(null);
@@ -90,6 +106,12 @@ public class DetectorPhishingApp {
         }
     }
 
+    /**
+     * Cuenta las ocurrencias de palabras clave de phishing en el scanner proporcionado.
+     *
+     * @param scanner El scanner que proporciona el contenido del archivo.
+     * @return Un mapa que contiene las ocurrencias de palabras clave y los puntos totales.
+     */
     private Map<String, Integer> countPhishingKeywords(Scanner scanner) {
         Map<String, Integer> keywordOccurrences = new HashMap<>();
 
@@ -106,6 +128,11 @@ public class DetectorPhishingApp {
         return keywordOccurrences;
     }
 
+    /**
+     * Muestra las ocurrencias de palabras clave y los puntos totales en el área de texto.
+     *
+     * @param keywordOccurrences Mapa que contiene las ocurrencias de palabras clave y los puntos totales.
+     */
     private void printKeywordOccurrences(Map<String, Integer> keywordOccurrences) {
         appendToOutput("Resultados del Análisis");
         appendToOutput("------------------------\n");
@@ -125,10 +152,21 @@ public class DetectorPhishingApp {
         appendToOutput(totalLine);
     }
 
+    /**
+     * Agrega texto al área de texto de salida.
+     *
+     * @param text El texto que se agregará.
+     */
+    
     private void appendToOutput(String text) {
         outputTextArea.append(text);
     }
 
+    /**
+     * Muestra un cuadro de diálogo de error con el mensaje proporcionado.
+     *
+     * @param message El mensaje de error a mostrar.
+     */
     private void showError(String message) {
         JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
